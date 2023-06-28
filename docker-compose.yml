@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
@@ -12,4 +13,4 @@ services:
       - "3000:3000"
 
 networks:
-  backend:
+  app-network:
