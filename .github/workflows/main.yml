@@ -51,8 +51,11 @@ jobs:
               docker rm express-demo
             fi
 
+            docker image rm ${{ secrets.DOCKERHUB_USERNAME }}/express:latest
+
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/express:latest
             docker run -d --name express-demo \
+              -e MONGO_URI=${{ secrets.MONGO_URI }} \
               -e VIRTUAL_HOST="duongvm.site" \
               -e VIRTUAL_PORT=3000 \
               -e LETSENCRYPT_HOST="duongvm.site" \
