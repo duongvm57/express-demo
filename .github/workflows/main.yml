@@ -32,6 +32,7 @@ jobs:
           target: prod
       
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
@@ -41,23 +42,12 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            container_id=$(docker ps -aqf "name=express-demo")
-            if [[ -n "$container_id" ]]; then
-              container_status=$(docker inspect -f '{{.State.Running}}' $container_id)
-              echo "::set-output name=container_status::$container_status"
-            else
-              echo "::set-output name=container_status::not_found"
-            fi
-
-            if [[ "$container_status" == "true" ]]; then
-              docker stop express-demo
-              docker rm express-demo
-            fi
-
+            docker stop express-demo || true
+            docker rm express-demo || true
             docker image rm ${{ secrets.DOCKERHUB_USERNAME }}/express:latest
-
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/express:latest
             docker run -d --name express-demo \
+              -p 3000:3000 \
               -e MONGO_URI=${{ secrets.MONGO_URI }} \
               -e VIRTUAL_HOST="duongvm.site" \
               -e VIRTUAL_PORT=3000 \

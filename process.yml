@@ -1,0 +1,7 @@
+apps:
+  - script : app.js
+    name : 'myapp'
+    # exec_mode: cluster
+    # instances: 2
+    # error_file : './logs/myapp.log'
+    # out_file : './logs/myapp.log'

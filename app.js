@@ -7,6 +7,7 @@ import * as http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import 'dotenv/config';
+import cors from "cors";
 
 const { PORT = '3000' } = process.env;
 const __filename = path.resolve();
@@ -14,6 +15,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
 
 const uri = process.env.MONGO_URI;
 mongoose.connect(uri).catch(error => console.log(error));
@@ -25,10 +27,6 @@ const Message = mongoose.model('Message', {
   name: String,
   message: String
 })
-
-app.get('/socket.io/socket.io.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js'));
-});
 
 app.get('/', function (req, res) {
   res.sendFile(__filename + '/index.html');
