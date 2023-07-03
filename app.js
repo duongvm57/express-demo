@@ -1,63 +1,31 @@
 'use strict'
 
 import express from 'express';
-import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import * as http from 'http';
-import { Server } from 'socket.io';
-import path from 'path';
+import { MongoClient } from 'mongodb';
 import 'dotenv/config';
 
-const { PORT = '3000' } = process.env;
-const __filename = path.resolve();
-const app = express();
+const { PORT = '3000' } = process.env
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+const app = express()
 
 const uri = process.env.MONGO_URI;
-mongoose.connect(uri).catch(error => console.log(error));
+const client = new MongoClient(uri);
 
-const server = http.createServer(app);
-const io = new Server(server);
+async function run() {
+  try {
+    const database = client.db('sample_mflix');
+    const movies = database.collection('movies');
+    const query = { title: 'Back to the Future' };
+    const movie = await movies.findOne(query);
+    console.log(movie);
+  } finally {
+    await client.close();
+  }
+}
+run().catch(console.dir);
 
-const Message = mongoose.model('Message', {
-  name: String,
-  message: String
+app.use((req, res, next) => {
+  res.send('Welcome To The New World')
 })
 
-app.get('/socket.io/socket.io.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js'));
-});
-
-app.get('/', function (req, res) {
-  res.sendFile(__filename + '/index.html');
-});
-
-app.get('/messages', async (req, res) => {
-  try {
-    const messages = await Message.find({});
-    res.send(messages)
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Error')
-  }
-})
-
-app.post('/messages', async (req, res) => {
-  try {
-    let message = new Message(req.body);
-    await message.save();
-    io.emit('message', req.body);
-    res.sendStatus(200);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
-  }
-});
-
-io.on('connection', () => {
-  console.log('a user is connected')
-});
-
-server.listen(PORT);
+app.listen(PORT)
