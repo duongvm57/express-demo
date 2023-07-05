@@ -42,9 +42,9 @@
         document.onkeyup = keyUp;
         function keyUp(event) {
           var key = event.keyCode || event.which;
-          if (key === 13) {
+          if (key === 13 || key === 3) {
             message = document.getElementById("chatbox").value;
-            sendMessage({ name: name , message: message });
+            sendMessage({ name: name, message: message });
             document.getElementById("chatbox").value = "";
           }
         }
@@ -60,8 +60,21 @@
             `<br>` +
             `<br>`;
           $("#chatcontainer").append(chatlog);
+          speakTTS(message.message);
           var messagesContainer = $("#chatborder");
           messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+        }
+
+        function speakTTS(text) {
+          const voices = window.speechSynthesis.getVoices();
+          const message = new SpeechSynthesisUtterance();
+          message.text = text;
+          message.volume = 1; // Volume range = 0 - 1
+          message.rate = 1.1; // Speed of the text read , default 1
+          message.voice = voices[6]; // change voice
+          message.lang = "en-US"; // Language, default 'en-US'
+          window.speechSynthesis.speak(message);
+          console.log(window.speechSynthesis.getVoices());
         }
 
         function getMessages() {
