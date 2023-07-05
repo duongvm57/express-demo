@@ -44,7 +44,7 @@
     socket.on('message', addMessages)
 
     function addMessages(message) {
-      $("#messages").append(`<h4> ${message.name} </h4> <p> ${message.message} </p><hr>`);
+      $("#messages").append(`<h4><span>${message.name}:</span> <span style="font-weight: normal; font-size: 14px;">${message.message}</span></h4><hr>`);
       $("#messages").scrollTop($("#messages")[0].scrollHeight);
     }
 
