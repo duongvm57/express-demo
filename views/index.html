@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./main.css" />
+    <title>Chat socket</title>
+  </head>
+
+  <body>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="./main.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <div id="bodybox">
+      <div id="chatborder">
+        <div id="chatcontainer"></div>
+      </div>
+      <div class="input-with-button">
+        <input
+          type="text"
+          name="chat"
+          id="chatbox"
+          placeholder="Your message here."
+          onfocus="placeHolder()"
+        />
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        var name = localStorage.getItem("name");
+        if (!name) {
+          name = prompt("Nhập tên zô:");
+          localStorage.setItem("name", name);
+        }
+
+        const socket = io();
+
+        document.onkeyup = keyUp;
+        function keyUp(event) {
+          var key = event.keyCode || event.which;
+          if (key === 13) {
+            message = document.getElementById("chatbox").value;
+            sendMessage({ name: name , message: message });
+            document.getElementById("chatbox").value = "";
+          }
+        }
+
+        getMessages();
+
+        socket.on("message", addMessages);
+
+        function addMessages(message) {
+          var chatlog =
+            `<span style="font-weight: bold;">${message.name}:   </span>` +
+            `<p class="chatlog">${message.message}</p>` +
+            `<br>` +
+            `<br>`;
+          $("#chatcontainer").append(chatlog);
+          var messagesContainer = $("#chatborder");
+          messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+        }
+
+        function getMessages() {
+          $.get("https://duongvm.site/messages", (data) => {
+            data.forEach((message) => {
+              addMessages(message);
+            });
+          });
+        }
+
+        function sendMessage(message) {
+          $.post("https://duongvm.site/messages", message);
+        }
+      };
+    </script>
+  </body>
+</html>

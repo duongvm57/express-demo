@@ -56,6 +56,7 @@ mongoose.connect(uri).catch(error => console.log(error));
 const server = http.createServer(app);
 const io = new Server(server);
 
+app.use(express.static('views'))
 app.get('/', function (req, res) {
   res.sendFile(__filename + '/index.html');
 });
