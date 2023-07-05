@@ -49,6 +49,7 @@ jobs:
             docker run -d --name express-demo \
               -p 3000:3000 \
               -e MONGO_URI=${{ secrets.MONGO_URI }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e VIRTUAL_HOST="duongvm.site" \
               -e VIRTUAL_PORT=3000 \
               -e LETSENCRYPT_HOST="duongvm.site" \
