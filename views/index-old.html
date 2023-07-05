@@ -49,13 +49,14 @@
     }
 
     function getMessages() {
-      $.get('https://duongvm.site/messages', (data) => {
+      // $.get('https://duongvm.site/messages', (data) => {
+        $.get('http://localhost:3000/messages', (data) => {
         data.forEach(addMessages);
       })
     }
 
     function sendMessage(message) {
-      $.post('https://duongvm.site/messages', message)
+      $.post('http://localhost:3000/messages', message)
     }
   </script>
 </body>
