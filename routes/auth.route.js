@@ -31,5 +31,6 @@ authRouter.post('/register', AuthController.signup);
  *         description: Successful login
  */
 authRouter.post('/login', AuthController.login);
+authRouter.post('/refreshtoken', AuthController.refreshToken);
 
 export default authRouter;

@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import RefreshToken from "../models/refreshToken.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -14,7 +15,7 @@ class AuthService {
       name: params.name,
       email: params.email,
       gender: params.gender,
-      password: encryptedPassword,
+      password: encryptedPassword
     });
 
     const savedUser = await user.save();
@@ -25,13 +26,13 @@ class AuthService {
       {
         algorithm: "HS256",
         allowInsecureKeySizes: true,
-        expiresIn: 86400,
+        expiresIn: 86400
       }
     );
 
     return {
       user: savedUser,
-      token: accessToken,
+      token: accessToken
     };
   }
 
@@ -52,15 +53,50 @@ class AuthService {
       {
         algorithm: "HS256",
         allowInsecureKeySizes: true,
-        expiresIn: 86400,
+        expiresIn: process.env.ACESS_TOKEN_EXPIRATION
+      }
+    );
+
+    const refreshToken = await RefreshToken.createToken(user);
+
+    return {
+      username: user.name,
+      email: user.email,
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    }
+  }
+
+  async refreshToken(params) {
+    if (!params.refreshToken) {
+      throw new Error('Refresh token is required!');
+    }
+    const refreshToken = await RefreshToken.findOne({ token: params.refreshToken });
+    if (!refreshToken) {
+      throw new Error('Refresh token not valid!');
+    }
+    if (RefreshToken.verifyExpiration(refreshToken)) {
+      RefreshToken.findByIdAndRemove(refreshToken._id, { useFindAndModify: false }).exec();
+      throw new Error('Refresh token was expired!');
+    }
+    const newAccessToken = jwt.sign(
+      { id: refreshToken.user._id },
+      process.env.JWT_SECRET,
+      {
+        algorithm: "HS256",
+        allowInsecureKeySizes: true,
+        expiresIn: process.env.ACESS_TOKEN_EXPIRATION
       }
     );
 
     return {
-      token: accessToken
+      accessToken: newAccessToken,
+      refreshToken: {
+        token: refreshToken.token,
+        expireDate: refreshToken.expireDate
+      }
     }
   }
-
 }
 
 export default new AuthService();
